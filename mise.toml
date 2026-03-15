@@ -8,3 +8,43 @@ version = "latest"
 hk = "latest"
 "pipx:bibfish" = "latest"
 pkl = "latest"
+taplo = "latest"
+
+[tasks.check-bib-filepath]
+description = "Check that base names are used in bibliography commands (exits 1 if any file would change)."
+dir = "{{ config_root }}/tex/"
+hide = true
+run = """
+#!/usr/bin/env bash
+set -euo pipefail
+failed=0
+for tex in *.tex; do
+  [[ -f "$tex" ]] || continue
+  [[ "$tex" == diff*.tex ]] && continue
+  base="${tex%.tex}"
+  if ! grep -q bibliography "$tex"; then
+    continue
+  fi
+  grep -qF "bibliography{${base}}" "$tex" || failed=1
+done
+exit $failed
+"""
+
+[tasks.fix-bib-filepath]
+description = "Make sure that the base name is used in the bibliography command."
+dir = "{{ config_root }}/tex/"
+hide = true
+run = """
+#!/usr/bin/env bash
+set -euo pipefail
+for tex in *.tex; do
+  [[ -f "$tex" ]] || continue
+  [[ "$tex" == diff*.tex ]] && continue
+  base="${tex%.tex}"
+  if ! grep -q bibliography "$tex"; then
+    continue
+  fi
+  grep -qF "bibliography{${base}}" "$tex" || \
+    sed -i "s|bibliography{[^}]*}|bibliography{${base}}|" "$tex"
+done
+"""

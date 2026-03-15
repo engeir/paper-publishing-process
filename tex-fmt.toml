@@ -1,0 +1,9 @@
+check = false
+lists = []
+print = false
+stdin = false
+tabchar = "space"
+tabsize = 2
+verbosity = "warn"
+wrap = false
+wraplen = 0
