@@ -329,3 +329,6 @@ TSWLatexianTemp*
 
 mise.local.toml
 main-ref.bib
+main.pdf
+diff*.pdf
+review*.pdf
