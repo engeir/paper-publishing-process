@@ -10,6 +10,44 @@ hk = "latest"
 pkl = "latest"
 taplo = "latest"
 
+[env]
+LOCAL_BIB_PATH = "" # override in mise.local.toml with your personal global bib path
+
+[tasks."main:compile"]
+depends = ["main:*"]
+description = "Build/compile the manuscript."
+dir = "{{ config_root }}/tex/"
+outputs = ["main.pdf", "main.bbl"]
+run = "latexmk -pdf -g -f -silent -recorder- main.tex"
+sources = [
+  "main.tex",
+  "main.bib",
+  # "file1.pdf",              # Fig 1
+]
+
+[tasks."main:update-refs"]
+description = "Update the bibliography file."
+dir = "{{ config_root }}/tex/"
+outputs = ["main.bib"]
+run = "bibfish -c 'cite,citet,citep,citeA' -f main.tex {{ env.LOCAL_BIB_PATH }}.bib main.bib"
+sources = ["main.tex"]
+
+[tasks.localize-bib-paths]
+description = "Restore full local bibliography path in all tex files for editor completion."
+dir = "{{ config_root }}/tex/"
+hide = true
+run = """
+#!/usr/bin/env bash
+set -euo pipefail
+[[ -z "${LOCAL_BIB_PATH:-}" ]] && exit 0
+for tex in *.tex; do
+  [[ -f "$tex" ]] || continue
+  [[ "$tex" == diff*.tex ]] && continue
+  grep -qF "bibliography{${LOCAL_BIB_PATH}}" "$tex" || \
+    sed -i "s|bibliography{[^}]*}|bibliography{${LOCAL_BIB_PATH}}|" "$tex"
+done
+"""
+
 [tasks.check-bib-filepath]
 description = "Check that base names are used in bibliography commands (exits 1 if any file would change)."
 dir = "{{ config_root }}/tex/"
