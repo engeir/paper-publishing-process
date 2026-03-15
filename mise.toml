@@ -1,0 +1,10 @@
+[tools."github:rstudio/tinytex-releases"]
+asset_pattern = "TinyTeX-1-*.tar.gz"
+bin_path = ".TinyTeX/bin/x86_64-linux"
+version = "latest"
+[tools]
+"github:WGUNDERWOOD/tex-fmt" = "latest"
+"github:orhun/git-cliff" = "latest"
+hk = "latest"
+"pipx:bibfish" = "latest"
+pkl = "latest"
