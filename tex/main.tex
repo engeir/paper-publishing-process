@@ -1,5 +1,10 @@
 \documentclass{article}
 
+\usepackage{underscore}
+\usepackage{amsmath}
+\usepackage{type1cm}
+\usepackage[version=4]{mhchem}
+
 \author{Eirik Rolland Enger}
 \title{A dead simple paper publishing workflow}
 
@@ -13,7 +18,22 @@ Hello, World!
 
 See \cite{enger2025:paper1}.
 
+\section{Extra packages}
+
+\begin{equation}
+  \Phi = 3
+  \label{eq:first-equation}
+\end{equation}
+
+An \ce{H2O} molecule!
+
+\section{Lets add some new packages}
+
+\subsection{This is not in tinytex}
+
+The package `mhchem' is not in tinytex-1, but its nice with full control!
+
 \bibliographystyle{plain}
-\bibliography{../main-ref}
+\bibliography{main}
 
 \end{document}

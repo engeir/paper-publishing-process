@@ -10,6 +10,42 @@ hk = "latest"
 pkl = "latest"
 taplo = "latest"
 
+[hooks]
+# Note that this will not uninstall the package if it is later removed from the
+# postinstall section. In the case where `package-a` was installed and used in the
+# tex files, then removed both places but later re-introduced in the tex files, it may
+# successfully run on your machine since it was never uninstalled, but fail on other
+# fresh installations. This is where the CI/CD pipeline will come to our rescue.
+#
+# Since the postinstall hook always run "postinstall", new additions to the list (say
+# you suddenly needed `package-b`) will automatically be installed. However, this make
+# each `mise install` a bit slower as the hook command runs also when no new packages
+# are added.
+#
+# Some typical non-default tinytex packages.
+postinstall = """
+tlmgr install \
+  cm-super \
+  underscore \
+  type1cm \
+  mhchem \
+  enumitem
+# Needed for class reviewresponse and creating diffs
+tlmgr install \
+  latexdiff \
+  koma-script \
+  tcolorbox \
+  caption \
+  pdfcol \
+  tikzfill \
+  grfext \
+  ulem \
+  siunitx \
+  mwe \
+  lipsum \
+  listings
+"""
+
 [env]
 LOCAL_BIB_PATH = "" # override in mise.local.toml with your personal global bib path
 
