@@ -25,7 +25,6 @@
 .pdf
 
 ## Bibliography auxiliary files (bibtex/biblatex/biber):
-*.bbl
 *.bbl-SAVE-ERROR
 *.bcf
 *.bcf-SAVE-ERROR

@@ -13,6 +13,11 @@ taplo = "latest"
 [env]
 LOCAL_BIB_PATH = "" # override in mise.local.toml with your personal global bib path
 
+[tasks.compile]
+description = "Compile all documents for local development."
+dir = "{{ config_root }}/tex/"
+run = [{ task = "localize-bib-paths" }, { task = "*:compile" }]
+
 [tasks."main:compile"]
 depends = ["main:*"]
 description = "Build/compile the manuscript."
