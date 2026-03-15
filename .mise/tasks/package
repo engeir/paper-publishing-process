@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+#MISE description="Package the manuscript into a zip-file to be submitted to The Journal"
+#MISE depends=["fix-bib-filepath"]
+#MISE dir="{{ config_root }}/tex/"
+
+here="$PWD"
+tdir="$(mktemp -d /tmp/foo.XXXXXXXXX)" || exit 1
+
+files=(main.tex main.bib main.bbl main.pdf)
+LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+if [[ -n $LATEST_TAG ]]; then
+    [[ -f "diff-${LATEST_TAG}.pdf" ]] && files+=("diff-${LATEST_TAG}.pdf")
+    [[ -f "review-${LATEST_TAG}.pdf" ]] && files+=("review-${LATEST_TAG}.pdf")
+fi
+
+cp "${files[@]}" "$tdir"
+cd "$tdir" || exit 1
+zip paper.zip "${files[@]}"
+mv paper.zip "$here"

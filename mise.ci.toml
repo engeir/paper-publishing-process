@@ -1,0 +1,20 @@
+# CI environment overrides — activated by MISE_ENV=ci in GitHub Actions.
+# Add CI-only settings here to avoid touching mise.toml.
+[tasks."ci:build"]
+description = "Build all documents (main paper + all review/diff files)"
+dir = "{{ config_root }}/tex/"
+hide = true
+run = """
+#!/usr/bin/env bash
+set -euo pipefail
+latexmk -pdf -g -f -silent -recorder- main.tex
+for tex in review*.tex; do
+  [[ -f "$tex" ]] || continue
+  latexmk -pdf -g -f -silent -recorder- "$tex"
+done
+for tex in diff*.tex; do
+  if [[ -f "$tex" ]]; then
+    latexmk -pdf -g -f -silent -recorder- "$tex"
+  fi
+done
+"""
