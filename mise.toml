@@ -1,8 +1,5 @@
-[tools."github:rstudio/tinytex-releases"]
-asset_pattern = "TinyTeX-1-*.tar.gz"
-bin_path = ".TinyTeX/bin/x86_64-linux"
-version = "latest"
 [tools]
+tinytex = "latest"
 "github:WGUNDERWOOD/tex-fmt" = "latest"
 "github:orhun/git-cliff" = "latest"
 hk = "latest"
@@ -24,6 +21,7 @@ taplo = "latest"
 #
 # Some typical non-default tinytex packages.
 postinstall = """
+tlmgr update --self
 tlmgr install \
   cm-super \
   underscore \
