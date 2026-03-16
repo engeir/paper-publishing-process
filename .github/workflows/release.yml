@@ -1,0 +1,45 @@
+---
+on:
+  push:
+    tags: ["*"]
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+env:
+  MISE_EXPERIMENTAL: true
+  MISE_ENV: ci
+permissions:
+  contents: write
+  pull-requests: read
+name: Release
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          fetch-depth: 0 # git-cliff needs full history
+      - uses: jdx/mise-action@c37c93293d6b742fc901e1406b8f764f6fb19dac # v2.4.4
+      - run: mise run ci:build
+      - run: mise run package
+      - name: Generate changelog
+        run: |
+          PREVIOUS_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          if [ -n "$PREVIOUS_TAG" ]; then
+            git-cliff "${PREVIOUS_TAG}..HEAD" --strip all -o RELEASE_NOTES.md
+          else
+            git-cliff --strip all -o RELEASE_NOTES.md
+          fi
+      - name: Create release and upload assets
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${{ github.ref_name }}"
+          gh release create "$TAG" --title "$TAG" --notes-file RELEASE_NOTES.md
+          gh release upload "$TAG" tex/main.pdf tex/paper.zip
+          for f in tex/review*.pdf tex/diff*.pdf; do
+            if [ -f "$f" ]; then
+              gh release upload "$TAG" "$f"
+            fi
+          done
