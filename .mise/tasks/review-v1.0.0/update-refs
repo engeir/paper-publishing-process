@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+#MISE description="Update the bibliography for review response v1.0.0."
+#MISE dir="{{ config_root }}/tex/"
+#MISE sources=["review-v1.0.0.tex"]
+#MISE outputs=["review-v1.0.0.bib"]
+CURRENT_LATEST=$(git describe --tags --abbrev=0 2>/dev/null)
+[[ "$CURRENT_LATEST" != "v1.0.0" ]] && { echo "review-v1.0.0: skipping, newer revision exists"; exit 0; }
+bibfish -c 'cite,citet,citep,citeA,printpartbibliography' -f review-v1.0.0.tex ../main-ref.bib review-v1.0.0.bib

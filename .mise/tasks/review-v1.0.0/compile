@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+#MISE description="Build/compile the review v1.0.0 response PDF."
+#MISE dir="{{ config_root }}/tex/"
+#MISE depends=["review-v1.0.0:update-refs"]
+#MISE sources=["review-v1.0.0.tex", "review-v1.0.0.bib"]
+#MISE outputs=["review-v1.0.0.pdf"]
+CURRENT_LATEST=$(git describe --tags --abbrev=0 2>/dev/null)
+[[ "$CURRENT_LATEST" != "v1.0.0" ]] && { echo "review-v1.0.0: skipping, newer revision exists"; exit 0; }
+latexmk -pdf -g -f -silent -recorder- review-v1.0.0.tex

@@ -1,0 +1,36 @@
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+
+\usepackage{graphicx}
+\usepackage[hypcap=false]{caption}
+\usepackage{enumitem,hyperref}
+\DeclareCaptionFont{gray}{\color{gray}}%
+\captionsetup{ labelfont={gray}, textfont={gray} }
+
+\definecolor{colorevalfg}{RGB}{70 0 87}% rgb(70 0 87)
+\definecolor{colorevalbg}{RGB}{243 221 249}% rgb(243 221 249)
+\definecolor{colorevalframe}{RGB}{124 0 155}% rgb(124 0 155)
+\definecolor{colorCommentUnresolved}{RGB}{155 0 0}% rgb(155 0 0)
+\definecolor{colorCommentSemiresolved}{RGB}{204 190 0}% rgb(204 190 0)
+\newcommand{\lines}[1]{\textcolor{gray}{\textbf{\emph{L#1}}}}
+\newcommand{\resp}[1][]{{\textbf{Response:} #1}}
+
+\newenvironment{evaluation}{%
+  \begin{tcolorbox}[attach title to upper, title={Evaluations}, after title={.\enskip},
+      fonttitle={\bfseries}, coltitle={colorevalfg}, colback={colorevalbg},
+    colframe={colorevalframe},]
+  }{
+  \end{tcolorbox}
+}
+
+% Check mark list
+\usepackage{amssymb}
+\newlist{todolist}{itemize}{2}
+\setlist[todolist]{label=$\square$}
+\usepackage{pifont}
+\newcommand{\cmark}{\ding{51}}
+%
+\newcommand{\xmark}{\ding{55}}
+%
+\newcommand{\done}{\rlap{\raisebox{0.3ex}{\hspace{0.4ex}\small \cmark}}$\square$}
+\newcommand{\wontfix}{\rlap{\raisebox{0.3ex}{\hspace{0.4ex}\small \xmark}}$\square$}
