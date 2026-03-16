@@ -30,6 +30,7 @@ jobs:
           name: paper-assets
           path: |
             tex/main.pdf
+            tex/diff*.pdf
             tex/review*.pdf
             tex/paper.zip
           if-no-files-found: error

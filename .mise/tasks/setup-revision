@@ -1,0 +1,227 @@
+#!/usr/bin/env bash
+
+#MISE description="Set up files for a new revision cycle: diff against latest tag + review response template"
+#MISE dir="{{ config_root }}/tex/"
+
+set -euo pipefail
+
+ROOT=$(git rev-parse --show-toplevel)
+
+# Get latest tag
+LATEST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "")
+if [[ -z $LATEST_TAG ]]; then
+    echo "Error: no git tags found. Tag a release before setting up a revision."
+    exit 1
+fi
+
+# Guard against re-running for the same tag
+if [[ -f "review-${LATEST_TAG}.tex" ]]; then
+    echo "Error: review-${LATEST_TAG}.tex already exists. Tag a new release first."
+    exit 1
+fi
+
+echo "Setting up revision against ${LATEST_TAG}..."
+
+# Generate diff file via latexdiff-vc
+latexdiff-vc --force --git --flatten -r "$LATEST_TAG" main.tex
+DIFF_GENERATED="main-diff${LATEST_TAG}.tex"
+if [[ ! -f $DIFF_GENERATED ]]; then
+    echo "Error: expected latexdiff-vc output '$DIFF_GENERATED' not found."
+    ls main-diff*.tex 2>/dev/null && echo "(files above were found instead)" || true
+    exit 1
+fi
+mv "$DIFF_GENERATED" "diff-${LATEST_TAG}.tex"
+
+# Create review response skeleton using reviewresponse class
+cat >"review-${LATEST_TAG}.tex" <<TEMPLATE
+\documentclass{reviewresponse}
+
+\usepackage{reviewresponse-extra}
+% Used for generating text only.
+\usepackage{lipsum}
+
+\begin{document}
+
+\title{Response to Reviewers}
+\author{My Name}
+\journal{The Journal}
+\manuscript{\#123456789}
+\date{\today}
+\editorname{The Editor}
+\maketitle
+
+\editor % Response to editor
+\subsubsection*{Associate Editor Evaluations}
+\begin{evaluation}
+  \begin{itemize}[leftmargin=4.5cm,noitemsep]
+    \item
+      [\textbf{Accurate Key Points:}] No!
+  \end{itemize}
+\end{evaluation}
+{
+  \begin{generalcomment}
+    Thank you for submitting your manuscript entitled \`\`A dead simple paper publishing workflow'' [Paper \#123456789] to The Journal. I have received 2 review of your manuscript, which is included below and/or attached.
+  \end{generalcomment}
+  \begin{revresponse}[We appreciate your handling of the review process.]
+    According to the reviewers' comments, we have checked our manuscript and addressed all comments individually.
+  \end{revresponse}
+}
+
+\reviewer
+
+\subsubsection*{Reviewer \#1 Evaluations}
+
+\begin{evaluation}
+  \begin{itemize}[leftmargin=4.5cm,noitemsep]
+    \item
+      [\textbf{Recommendation}] Publish in present form
+    \item
+      [\textbf{Referencing}] Perfection
+    \item
+      [\textbf{Quality}] Aweful
+    \item
+      [\textbf{Data}] Nothing...
+    \item
+      [\textbf{Accurate Key Points}] What key points?
+  \end{itemize}
+\end{evaluation}
+
+\subsubsection*{Reviewer \#1 Formal Review for Author (shown to authors)}
+
+{
+  \begin{generalcomment}
+    I appreciate the authors' clarifications and additional analysis.
+  \end{generalcomment}
+  \begin{revresponse}[Hi]
+    Thank you!
+  \end{revresponse}
+}
+
+\reviewer
+
+\subsubsection*{Reviewer \#2 Evaluations}
+
+\begin{evaluation}
+  \begin{itemize}[leftmargin=4.5cm,noitemsep]
+    \item
+      [\textbf{Recommendation}] Don't publish in present form
+    \item
+      [\textbf{Referencing}] Bad
+    \item
+      [\textbf{Quality}] Cool
+    \item
+      [\textbf{Data}] Sufficient
+    \item
+      [\textbf{Accurate Key Points}] Nice
+  \end{itemize}
+\end{evaluation}
+
+\subsubsection*{Reviewer \#2 Formal Review for Author (shown to authors)}
+\begin{generalcomment}
+  The paper presents a new perspective on things that exists.
+\end{generalcomment}
+
+\subsubsection*{Reviewer \#2 Main Comments}
+
+\begin{revcomment}
+  Line 1: The title of this paper is not strong enough.
+
+  \tcblower\resp
+
+  We have adjusted the title to now read \`\`The deadliest simplest paper publishing workflow''
+\end{revcomment}
+\begin{revcomment}
+  \label{com:r2-c2} Lines 218-220: \lipsum[3]
+
+  \tcblower\resp
+
+  \lipsum[1][1] (\lines{237--239}), \lipsum[1][1] Figure~\ref{fig:temp-averages}.
+
+  \lipsum[3][1] \cite{enger2025:paper1} (\lines{225--229}).
+
+  \begin{minipage}{\linewidth}
+    \centering
+
+    \includegraphics[width=0.96\linewidth]{example-image-golden}
+    \captionof{figure}{\lipsum[1][1-5]}\label{fig:temp-averages}
+  \end{minipage}
+
+  \begin{minipage}{\linewidth}
+    \centering
+
+    \includegraphics[width=0.96\linewidth]{example-image}
+    \captionof{figure}{\lipsum[2][1-4]}\label{fig:correlation-single}
+  \end{minipage}
+\end{revcomment}
+
+\bibliographystyle{plain}
+\bibliography{review-${LATEST_TAG}}
+
+\end{document}
+TEMPLATE
+
+# Create mise task files for the new revision
+mkdir -p "${ROOT}/.mise/tasks/review-${LATEST_TAG}" "${ROOT}/.mise/tasks/diff-${LATEST_TAG}"
+
+sed 's/^ //' >"${ROOT}/.mise/tasks/review-${LATEST_TAG}/update-refs" <<TASK
+ #!/usr/bin/env bash
+ #MISE description="Update the bibliography for review response ${LATEST_TAG}."
+ #MISE dir="{{ config_root }}/tex/"
+ #MISE sources=["review-${LATEST_TAG}.tex"]
+ #MISE outputs=["review-${LATEST_TAG}.bib"]
+ CURRENT_LATEST=\$(git describe --tags --abbrev=0 2>/dev/null)
+ [[ "\$CURRENT_LATEST" != "${LATEST_TAG}" ]] && { echo "review-${LATEST_TAG}: skipping, newer revision exists"; exit 0; }
+ bibfish -c 'cite,citet,citep,citeA,printpartbibliography' -f review-${LATEST_TAG}.tex ${LOCAL_BIB_PATH}.bib review-${LATEST_TAG}.bib
+TASK
+
+sed 's/^ //' >"${ROOT}/.mise/tasks/review-${LATEST_TAG}/compile" <<TASK
+ #!/usr/bin/env bash
+ #MISE description="Build/compile the review ${LATEST_TAG} response PDF."
+ #MISE dir="{{ config_root }}/tex/"
+ #MISE depends=["review-${LATEST_TAG}:update-refs"]
+ #MISE sources=["review-${LATEST_TAG}.tex", "review-${LATEST_TAG}.bib"]
+ #MISE outputs=["review-${LATEST_TAG}.pdf"]
+ CURRENT_LATEST=\$(git describe --tags --abbrev=0 2>/dev/null)
+ [[ "\$CURRENT_LATEST" != "${LATEST_TAG}" ]] && { echo "review-${LATEST_TAG}: skipping, newer revision exists"; exit 0; }
+ latexmk -pdf -g -f -silent -recorder- review-${LATEST_TAG}.tex
+TASK
+
+sed 's/^ //' >"${ROOT}/.mise/tasks/diff-${LATEST_TAG}/create" <<TASK
+ #!/usr/bin/env bash
+ #MISE description="Regenerate diff-${LATEST_TAG}.tex against ${LATEST_TAG}."
+ #MISE dir="{{ config_root }}/tex/"
+ #MISE sources=["main.tex"]
+ #MISE outputs=["diff-${LATEST_TAG}.tex"]
+ CURRENT_LATEST=\$(git describe --tags --abbrev=0 2>/dev/null)
+ [[ "\$CURRENT_LATEST" != "${LATEST_TAG}" ]] && { echo "diff-${LATEST_TAG}: skipping, newer revision exists"; exit 0; }
+ latexdiff-vc --force --git --flatten -r ${LATEST_TAG} main.tex
+ mv "main-diff${LATEST_TAG}.tex" "diff-${LATEST_TAG}.tex"
+TASK
+
+sed 's/^ //' >"${ROOT}/.mise/tasks/diff-${LATEST_TAG}/compile" <<TASK
+ #!/usr/bin/env bash
+ #MISE description="Build/compile the diff ${LATEST_TAG} PDF."
+ #MISE dir="{{ config_root }}/tex/"
+ #MISE depends=["diff-${LATEST_TAG}:create"]
+ #MISE sources=["diff-${LATEST_TAG}.tex"]
+ #MISE outputs=["diff-${LATEST_TAG}.pdf"]
+ CURRENT_LATEST=\$(git describe --tags --abbrev=0 2>/dev/null)
+ [[ "\$CURRENT_LATEST" != "${LATEST_TAG}" ]] && { echo "diff-${LATEST_TAG}: skipping, newer revision exists"; exit 0; }
+ latexmk -pdf -g -f -silent -recorder- diff-${LATEST_TAG}.tex
+TASK
+
+chmod +x "${ROOT}/.mise/tasks/review-${LATEST_TAG}/update-refs" \
+    "${ROOT}/.mise/tasks/review-${LATEST_TAG}/compile" \
+    "${ROOT}/.mise/tasks/diff-${LATEST_TAG}/create" \
+    "${ROOT}/.mise/tasks/diff-${LATEST_TAG}/compile"
+
+echo ""
+echo "Created:"
+echo "  tex/diff-${LATEST_TAG}.tex   (latexdiff vs ${LATEST_TAG})"
+echo "  tex/review-${LATEST_TAG}.tex (review response skeleton using reviewresponse class)"
+echo "  .mise/tasks/review-${LATEST_TAG}/update-refs"
+echo "  .mise/tasks/review-${LATEST_TAG}/compile"
+echo "  .mise/tasks/diff-${LATEST_TAG}/create"
+echo "  .mise/tasks/diff-${LATEST_TAG}/compile"
+echo ""
+echo "Next: edit review-${LATEST_TAG}.tex, then  mise run compile"
