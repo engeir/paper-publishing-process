@@ -5,8 +5,11 @@
 >
 > See
 > [paper publishing workflow](https://eirik.re/blog/2026/02/paper-publishing-workflow/)
-> for a blog post explaining every step on the way, or just fork the repo and continue
-> from there.
+> for a blog post explaining every step on the way, or just install with
+>
+> ```bash
+> curl -fsSL https://raw.githubusercontent.com/engeir/paper-publishing-process/main/INSTALL.sh | sh
+> ```
 
 Please see the
 [release page](https://github.com/engeir/paper-publishing-process/releases) for the
