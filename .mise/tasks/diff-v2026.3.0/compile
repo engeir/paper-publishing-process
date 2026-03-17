@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+#MISE description="Build/compile the diff v2026.3.0 PDF."
+#MISE dir="{{ config_root }}/tex/"
+#MISE depends=["diff-v2026.3.0:create"]
+#MISE sources=["diff-v2026.3.0.tex"]
+#MISE outputs=["diff-v2026.3.0.pdf"]
+CURRENT_LATEST=$(git describe --tags --abbrev=0 2>/dev/null)
+[[ "$CURRENT_LATEST" != "v2026.3.0" ]] && { echo "diff-v2026.3.0: skipping, newer revision exists"; exit 0; }
+latexmk -pdf -g -f -silent -recorder- diff-v2026.3.0.tex

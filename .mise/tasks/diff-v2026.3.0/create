@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+#MISE description="Regenerate diff-v2026.3.0.tex against v2026.3.0."
+#MISE dir="{{ config_root }}/tex/"
+#MISE sources=["main.tex"]
+#MISE outputs=["diff-v2026.3.0.tex"]
+CURRENT_LATEST=$(git describe --tags --abbrev=0 2>/dev/null)
+[[ "$CURRENT_LATEST" != "v2026.3.0" ]] && { echo "diff-v2026.3.0: skipping, newer revision exists"; exit 0; }
+latexdiff-vc --force --git --flatten -r v2026.3.0 main.tex
+mv "main-diffv2026.3.0.tex" "diff-v2026.3.0.tex"

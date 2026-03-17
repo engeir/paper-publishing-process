@@ -1,0 +1,124 @@
+\documentclass{reviewresponse}
+
+\usepackage{reviewresponse-extra}
+% Used for generating text only.
+\usepackage{lipsum}
+
+\begin{document}
+
+\title{Response to Reviewers}
+\author{My Name}
+\journal{The Journal}
+\manuscript{\#123456789}
+\date{\today}
+\editorname{The Editor}
+\maketitle
+
+\editor % Response to editor
+\subsubsection*{Associate Editor Evaluations}
+\begin{evaluation}
+  \begin{itemize}[leftmargin=4.5cm,noitemsep]
+    \item
+      [\textbf{Accurate Key Points:}] No!
+  \end{itemize}
+\end{evaluation}
+{
+  \begin{generalcomment}
+    Thank you for submitting your manuscript entitled ``A dead simple paper publishing workflow'' [Paper \#123456789] to The Journal. I have received 2 review of your manuscript, which is included below and/or attached.
+  \end{generalcomment}
+  \begin{revresponse}[We appreciate your handling of the review process.]
+    According to the reviewers' comments, we have checked our manuscript and addressed all comments individually.
+  \end{revresponse}
+}
+
+\reviewer
+
+\subsubsection*{Reviewer \#1 Evaluations}
+
+\begin{evaluation}
+  \begin{itemize}[leftmargin=4.5cm,noitemsep]
+    \item
+      [\textbf{Recommendation}] Publish in present form
+    \item
+      [\textbf{Referencing}] Perfection
+    \item
+      [\textbf{Quality}] Aweful
+    \item
+      [\textbf{Data}] Nothing...
+    \item
+      [\textbf{Accurate Key Points}] What key points?
+  \end{itemize}
+\end{evaluation}
+
+\subsubsection*{Reviewer \#1 Formal Review for Author (shown to authors)}
+
+{
+  \begin{generalcomment}
+    I appreciate the authors' clarifications and additional analysis.
+  \end{generalcomment}
+  \begin{revresponse}[Hi]
+    Thank you!
+  \end{revresponse}
+}
+
+\reviewer
+
+\subsubsection*{Reviewer \#2 Evaluations}
+
+\begin{evaluation}
+  \begin{itemize}[leftmargin=4.5cm,noitemsep]
+    \item
+      [\textbf{Recommendation}] Don't publish in present form
+    \item
+      [\textbf{Referencing}] Bad
+    \item
+      [\textbf{Quality}] Cool
+    \item
+      [\textbf{Data}] Sufficient
+    \item
+      [\textbf{Accurate Key Points}] Nice
+  \end{itemize}
+\end{evaluation}
+
+\subsubsection*{Reviewer \#2 Formal Review for Author (shown to authors)}
+\begin{generalcomment}
+  The paper presents a new perspective on things that exists.
+\end{generalcomment}
+
+\subsubsection*{Reviewer \#2 Main Comments}
+
+\begin{revcomment}
+  Line 1: The title of this paper is not strong enough.
+
+  \tcblower\resp
+
+  We have adjusted the title to now read ``The deadliest simplest paper publishing workflow''
+\end{revcomment}
+\begin{revcomment}
+  \label{com:r2-c2} Lines 218-220: \lipsum[3]
+
+  \tcblower\resp
+
+  \lipsum[1][1] (\lines{237--239}), \lipsum[1][1] Figure~\ref{fig:temp-averages}.
+
+  \lipsum[3][1] \cite{enger2025:paper2} (\lines{225--229}).
+
+  \begin{minipage}{\linewidth}
+    \centering
+
+    \includegraphics[width=0.96\linewidth]{example-image-golden}
+    \captionof{figure}{\lipsum[1][1-5]}\label{fig:temp-averages}
+  \end{minipage}
+
+  \begin{minipage}{\linewidth}
+    \centering
+
+    \includegraphics[width=0.96\linewidth]{example-image}
+    \captionof{figure}{\lipsum[2][1-4]}\label{fig:correlation-single}
+  \end{minipage}
+\end{revcomment}
+
+\bibliographystyle{plain}
+\bibliography{review-v2026.3.0}
+
+\end{document}
