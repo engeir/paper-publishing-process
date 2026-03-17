@@ -1,5 +1,13 @@
 # Paper publishing process
 
+> An example repo for setting up a fully automatic workflow for writing paper
+> manuscripts and replies to reviews.
+>
+> See
+> [paper publishing workflow](https://eirik.re/blog/2026/02/paper-publishing-workflow/)
+> for a blog post explaining every step on the way, or just fork the repo and continue
+> from there.
+
 Please see the
 [release page](https://github.com/engeir/paper-publishing-process/releases) for the
 latest version of the manuscript and the generated PDF.
